@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/horizon/horizon.js"></script>
+</head>
+<body>
+<p>当前状态：<span id="status_text"></span></p>
+<button style="width:100px;height:50px;font-size:18px" id="switch_btn">开</button>
+<script>
+    var horizon = Horizon();
+    horizon.onReady(function () {
+        var params = horizon('params');
+
+        var button = document.querySelector('#switch_btn');
+        var text = document.querySelector('#status_text');
+
+        params.find({name: "status"}).fetch().subscribe(status => {
+            updateStatus(status);
+        });
+
+        button.onclick = function (e) {
+            params.find({name: "status"}).fetch().subscribe(status => {
+                status = status || {name: "status"};
+                status.open = !status.open;
+                params.upsert(status);
+                updateStatus(status);
+            });
+        };
+
+        function updateStatus(status) {
+            button.innerHTML = status && status.open ? '关闭' : '打开';
+            text.innerHTML = status && status.open ? '已开启' : '已关闭';
+            console.log(status);
+        }
+    });
+    horizon.connect();
+</script>
+</body>
+</html>
